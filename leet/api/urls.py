@@ -1,14 +1,12 @@
 from django.conf import settings
-from django.views.generic import TemplateView
-
 from django.conf.urls import include, url
-from django.urls import path
 
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import routers
 
 from leet.api.viewsets.two_sum import TwoSumViewset
+
 
 # Root
 
@@ -17,7 +15,6 @@ root = routers.DefaultRouter()
 
 # App: leet
 root.register(r'leet/two-sum', TwoSumViewset, basename="two-sum")
-
 # root.register(...)
 
 # URLs
