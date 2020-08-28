@@ -11,6 +11,8 @@ from leet.api.serializers.two_sum_serializer import TwoSumSerializer
 
 class TwoSumViewset(viewsets.ViewSet):
     """
+        Leet: https://leetcode.com/problems/two-sum/
+
         Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 
         You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -29,10 +31,19 @@ class TwoSumViewset(viewsets.ViewSet):
     # TODO: serializer class isn't quite working how I expect
     serializer_class = TwoSumSerializer
 
+    def _generate_output(self, inputs, method):
+        numbers = inputs['numbers']
+        target = inputs['target']
+        return {
+            'input': {'numbers': numbers, 'target': target},
+            'result': method(numbers, target),
+        }
+
     def list(self, request):
         return Response(
             {
                 "urls": {
+                    "Leet": {"url": "https://leetcode.com/problems/two-sum/"},
                     "Brute": {
                         "description": TwoSum.brute.__doc__.strip(),
                         "url": request.build_absolute_uri(reverse('two-sum-brute')),
@@ -51,6 +62,11 @@ class TwoSumViewset(viewsets.ViewSet):
                             reverse('two-sum-trash-memory')
                         ),
                         "code": "https://github.com/theovoss/leet/blob/master/leet/api/problems/two_sum.py#L37-L46",
+                    },
+                    "multiple": {
+                        "description": TwoSum.trash_memory.__doc__.strip(),
+                        "url": request.build_absolute_uri(reverse('two-sum-multiple')),
+                        "code": "https://github.com/theovoss/leet/blob/master/leet/api/problems/two_sum.py#L49-L60",
                     },
                 }
             }
@@ -74,10 +90,7 @@ class TwoSumViewset(viewsets.ViewSet):
             serializer = TwoSumSerializer(data=request.data)
             serializer.is_valid()
             return Response(
-                TwoSum().brute(
-                    serializer.validated_data['numbers'],
-                    serializer.validated_data['target'],
-                )
+                self._generate_output(serializer.validated_data, TwoSum().brute)
             )
 
     @csrf_exempt
@@ -98,10 +111,7 @@ class TwoSumViewset(viewsets.ViewSet):
             serializer = TwoSumSerializer(data=request.data)
             serializer.is_valid()
             return Response(
-                TwoSum().outside_in(
-                    serializer.validated_data['numbers'],
-                    serializer.validated_data['target'],
-                )
+                self._generate_output(serializer.validated_data, TwoSum().outside_in)
             )
 
     @csrf_exempt
@@ -122,8 +132,28 @@ class TwoSumViewset(viewsets.ViewSet):
             serializer = TwoSumSerializer(data=request.data)
             serializer.is_valid()
             return Response(
-                TwoSum().trash_memory(
-                    serializer.validated_data['numbers'],
-                    serializer.validated_data['target'],
+                self._generate_output(serializer.validated_data, TwoSum().trash_memory)
+            )
+
+    @csrf_exempt
+    @action(methods=['GET', 'POST'], detail=False, url_name="multiple")
+    def multiple(self, request, pk=None):
+        """
+        Sample input:
+        ```
+        {
+            "numbers": [2, 7, 11, 15],
+            "target": 9
+        }
+        ```
+        """
+        if request.method == "GET":
+            return Response()
+        else:
+            serializer = TwoSumSerializer(data=request.data)
+            serializer.is_valid()
+            return Response(
+                self._generate_output(
+                    serializer.validated_data, TwoSum().multiple_trash_memory
                 )
             )

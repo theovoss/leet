@@ -3,7 +3,7 @@ class TwoSum:
     LEET = "https://leetcode.com/problems/two-sum/"
     PLACE_THEO_SOLVED = "Criteo inteview August 27, 2020"
 
-    def brute(self, numbers, target):
+    def brute(self, numbers, target, multiple=False):
         """
             Complexity of O(N logN) most likely. Depends on how python does item in list.
         """
@@ -40,7 +40,21 @@ class TwoSum:
         """
         cache = {}
         for i, num in enumerate(numbers):
+            # there was a bug in my interview here where it wouldn't match if it was supposed to use the first item in the list because the index was 0. Fixed that by explicitely checking the .get for None instead of anything falsey.
             if cache.get(num) is not None:
                 return [cache.get(num), i]
             cache[target - num] = i
         return self.NOT_FOUND
+
+    def multiple_trash_memory(self, numbers, target):
+        """
+            Complexity of O(N), handles unsorted, sorted, negatives, returns all results, but uses O(N^2)? memory as well.
+        """
+        cache = {}
+        answers = []
+        for i, num in enumerate(numbers):
+            if cache.get(num) is not None:
+                answers.append([cache.get(num), i])
+            cache[target - num] = i
+
+        return answers if answers else self.NOT_FOUND
